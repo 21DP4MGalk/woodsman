@@ -84,17 +84,31 @@ function animate(){
 
 }
 renderer.setAnimationLoop( animate );
-function calculate(){
+async function calculate(){
 	var L = document.getElementById("length").value;
 	var B = document.getElementById("width").value;
 	var H = document.getElementById("height").value;
 	var f = document.getElementById("stiffness").value;
 	
-	var W = (B*H*H)/6;
-	var q = 8 * W * f / (L*L);
+        var requestData = new FormData();
+	requestData.append("L", L);
+	requestData.append("B", B);
+	requestData.append("H", H);
+	requestData.append("f", f);
 
+        var request = await fetch("/api/calculate.php", {
+		body: requestData,
+                method: "POST",
+	});
+
+	if(await !request.ok){
+		return;
+	}
+	
+	var response = JSON.parse(await request.text());
+	
 	var results = document.getElementById("results");
-	results.innerHTML = "Pretestības moments: " + W + "<br>Pieļaujamā slodze: " + q;
+	results.innerHTML = "Pretestības moments: " + response.W + "<br>Pieļaujamā slodze: " + response.q;
 	
 	
 }
